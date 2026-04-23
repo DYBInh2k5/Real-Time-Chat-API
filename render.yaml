@@ -5,9 +5,8 @@ services:
     env: node
     region: singapore
     plan: free
-    rootDir: realtime-chat-api
-    buildCommand: npm install && npm run build
-    startCommand: npm run start:prod
+    buildCommand: cd realtime-chat-api && npm install && npm run build
+    startCommand: cd realtime-chat-api && npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production

@@ -1,0 +1,57 @@
+services:
+  # Web Service (API)
+  - type: web
+    name: chat-api
+    env: node
+    region: singapore
+    plan: free
+    rootDir: realtime-chat-api
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: API_PREFIX
+        value: api
+      - key: DB_HOST
+        fromDatabase:
+          name: chat-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chat-db
+          property: port
+      - key: DB_USERNAME
+        fromDatabase:
+          name: chat-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: chat-db
+          property: password
+      - key: DB_DATABASE
+        fromDatabase:
+          name: chat-db
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        value: "*"
+
+databases:
+  # PostgreSQL Database
+  - name: chat-db
+    databaseName: chat_api
+    user: chat_user
+    plan: free
+    region: singapore
+
+# Made with Bob

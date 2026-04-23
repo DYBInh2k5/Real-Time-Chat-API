@@ -1,0 +1,42 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import databaseConfig from './config/database.config';
+import redisConfig from './config/redis.config';
+import jwtConfig from './config/jwt.config';
+
+@Module({
+  imports: [
+    // Configuration
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [databaseConfig, redisConfig, jwtConfig],
+      envFilePath: '.env',
+    }),
+
+    // Database
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        ...configService.get('database'),
+      }),
+    }),
+
+    // Rate Limiting
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => [
+        {
+          ttl: parseInt(configService.get('THROTTLE_TTL') || '60', 10) * 1000,
+          limit: parseInt(configService.get('THROTTLE_LIMIT') || '10', 10),
+        },
+      ],
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
